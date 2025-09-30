@@ -164,3 +164,51 @@ html {
     margin: 6px 0;
     font-weight: 400;
 }
+
+/* Fundo animado */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: #0f0f1f;
+    overflow-x: hidden;
+}
+
+/* Navbar e botões */
+.navbar-custom {
+    background-color: rgba(20, 20, 30, 0.95);
+    backdrop-filter: blur(6px);
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+.hover-grow:hover,
+.hero-btn:hover {
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+/* Fade-in sections */
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* Landing container padding */
+.landing-container {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+/* Footer */
+.footer {
+    background-color: #0f0f1f;
+}

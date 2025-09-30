@@ -1,2 +1,4 @@
 ID,Nome,Categoria,Quantidade em estoque,Preço de compra,Preço de venda,Fornecedor
-PRD-0001,Fone Noctis,Eletrônicos,10,50.0,89.99,Noctis Supplies
+PRD-0001,Fone Noctis,Eletrônicos,9,50.0,89.99,Noctis Supplies
+PRD-6397ee16,sad,asade,1,0.26,0.53,ademir
+PRD-6155c613,sad,asade,1,0.26,0.53,ademir

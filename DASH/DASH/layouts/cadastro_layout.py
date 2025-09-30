@@ -1,6 +1,4 @@
-# layouts/cadastro_layout.py
-# Formulário para cadastro de produto. Integra com callbacks/cadastro_callbacks.py
-from dash import html, dcc
+from dash import html
 import dash_bootstrap_components as dbc
 
 def build_cadastro_layout():
@@ -27,12 +25,7 @@ def build_cadastro_layout():
                     dbc.Button("Voltar", href="/home", color="secondary", className="ms-2")
                 ]),
                 html.Div(id="cad-feedback", className="mt-3")
-            ], width=6),
-            dbc.Col(html.Div([
-                html.H5("Dicas"),
-                html.P("ID automático é gerado como UUID curto se não informado."),
-                html.P("Verifique duplicatas de código/nome antes de salvar.")
-            ]), width=6)
+            ], width=6)
         ])
     ], fluid=True)
     return layout

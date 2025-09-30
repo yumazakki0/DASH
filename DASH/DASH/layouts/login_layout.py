@@ -1,5 +1,3 @@
-# layouts/login_layout.py
-# Layout da página de login. Usa dbc para componentes e classes CSS do /assets/style.css
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
@@ -10,8 +8,6 @@ def build_login_layout(alert_text=None):
 
     layout = dbc.Container(
         [
-            html.Div(className="bg-left"),  # camada visual (CSS)
-            html.Div(className="bg-right"),
             dbc.Row(
                 dbc.Col(
                     dbc.Card(

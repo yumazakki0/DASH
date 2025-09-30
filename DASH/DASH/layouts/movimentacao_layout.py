@@ -1,6 +1,4 @@
-# layouts/movimentacao_layout.py
-# Formulário para entrada/saída de estoque e histórico rápido
-from dash import html, dcc
+from dash import html
 import dash_bootstrap_components as dbc
 
 def build_movimentacao_layout():
@@ -18,10 +16,6 @@ def build_movimentacao_layout():
                     dbc.Button("Voltar", href="/home", color="secondary", className="ms-2")
                 ]),
                 html.Div(id="mov-feedback", className="mt-3")
-            ], width=6),
-            dbc.Col([
-                html.H5("Histórico recente"),
-                html.Div(id="mov-historico")
             ], width=6)
         ])
     ], fluid=True)

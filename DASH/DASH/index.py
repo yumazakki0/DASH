@@ -1,66 +1,65 @@
 # index.py
-# Ponto de entrada do sistema. Inicializa a página e controla navegação básica.
-
-from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
 import pandas as pd
+import os
 
 from app import register_layout, app, server
 from layouts.landing_layout import build_landing_layout
 from layouts.login_layout import build_login_layout
 from layouts.home_layout import build_home_layout
+from layouts.cadastro_layout import build_cadastro_layout
+from layouts.movimentacao_layout import build_movimentacao_layout
+from layouts.lista_layout import build_lista_layout
 from callbacks.login_callbacks import validar_login, criar_usuario_se_nao_existe
-from callbacks.common import garantir_data_files
+from callbacks.common import garantir_data_files, USUARIOS_CSV
 
-# Garante que CSV/DB básicos existam (cria estrutura inicial)
+# 1️⃣ Garante estrutura de pastas e CSV
 garantir_data_files()
+criar_usuario_se_nao_existe()
 
-# Layout principal da aplicação
+# 2️⃣ Layout principal
 register_layout(html.Div([
-    dcc.Location(id='url', refresh=True),  # Força atualização visual ao navegar
+    dcc.Location(id='url', refresh=False),  # <--- remove o True
     dcc.Store(id='session-store', data={'logado': False, 'usuario': None}),
-    html.Div(id='page-content')
+    #miojo heeheh
+    html.Div(id='page-content', className="page-fade")
 ]))
 
-# Callback que monta a página conforme a URL e o estado de sessão
+
+# 3️⃣ Callback que monta página conforme URL
 @app.callback(
     Output('page-content', 'children'),
     Input('url', 'pathname'),
     State('session-store', 'data')
 )
 def display_page(pathname, session):
-
-    print(f"URL: {pathname}, Sessão: {session}")
+    logado = session.get('logado') if session else False
+    usuario = session.get('usuario') if session else None
 
     if pathname in ['/', '/inicio']:
         return build_landing_layout()
 
     if pathname == '/login':
-        return build_login_layout()
+        alert_msg = None
+        if session and session.get('logado') is False:
+            alert_msg = "Usuário ou senha incorretos."
+        return build_login_layout(alert_text=alert_msg)
 
-    if pathname == '/home':
-        if not session.get('logado'):
-            return build_login_layout(alert_text="Você precisa fazer login para acessar o painel.")
-        return build_home_layout(session.get('usuario'))
+    # 🔒 Páginas protegidas
+    protected_pages = {
+        '/home': lambda: build_home_layout(usuario),
+        '/cadastro': lambda: build_cadastro_layout(),
+        '/movimentacao': lambda: build_movimentacao_layout(),
+        '/lista': lambda: build_lista_layout()
+    }
 
-    if pathname == '/cadastro':
-        if not session.get('logado'):
+    if pathname in protected_pages:
+        if logado:
+            page_func = protected_pages[pathname]
+            return page_func()  # garante que a função seja chamada
+        else:
             return build_login_layout(alert_text="Faça login primeiro.")
-        from layouts.cadastro_layout import build_cadastro_layout
-        return build_cadastro_layout()
-
-    if pathname == '/movimentacao':
-        if not session.get('logado'):
-            return build_login_layout(alert_text="Faça login primeiro.")
-        from layouts.movimentacao_layout import build_movimentacao_layout
-        return build_movimentacao_layout()
-
-    if pathname == '/lista':
-        if not session.get('logado'):
-            return build_login_layout(alert_text="Faça login primeiro.")
-        from layouts.lista_layout import build_lista_layout
-        return build_lista_layout()
 
     # Página 404
     return html.Div([
@@ -70,7 +69,8 @@ def display_page(pathname, session):
         ], className="text-center mt-5")
     ])
 
-# Callback de login: atualiza sessão e redireciona
+
+# 4️⃣ Callback de login
 @app.callback(
     Output('session-store', 'data'),
     Output('url', 'pathname'),
@@ -80,17 +80,15 @@ def display_page(pathname, session):
     prevent_initial_call=True
 )
 def handle_login(n_clicks, username, password):
-    print(f"Login clicado: {n_clicks}, usuário: {username}, senha: {password}")
-    criar_usuario_se_nao_existe()
+    if not username or not password:
+        return {'logado': False, 'usuario': None}, '/login'
 
-    # Modo de desenvolvimento: aceita qualquer login
-    return {'logado': True, 'usuario': username}, '/home'
+    if validar_login(username, password):
+        return {'logado': True, 'usuario': username}, '/home'
 
-    # Se quiser validar de verdade, use:
-    # if validar_login(username, password):
-    #     return {'logado': True, 'usuario': username}, '/home'
-    # return {'logado': False, 'usuario': None}, '/login'
+    return {'logado': False, 'usuario': None}, '/login'
 
-# Executa o servidor
+
+# 5️⃣ Executa o servidor
 if __name__ == '__main__':
     app.run(debug=True, port=8050)

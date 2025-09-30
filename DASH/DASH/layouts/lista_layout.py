@@ -1,24 +1,24 @@
-# layouts/lista_layout.py
-# Tabela com listagem dos produtos e filtros simples
-from dash import html, dcc
+from dash import html
 import dash_bootstrap_components as dbc
-import pandas as pd
+from dash import dash_table
 from callbacks.common import carregar_produtos
 
 def build_lista_layout():
     df = carregar_produtos()
-    # converter para html table simples (pode ser substituído por dash_table.DataTable futuramente)
-    table_header = [
-        html.Thead(html.Tr([html.Th(c) for c in df.columns]))
-    ]
-    table_body = []
-    for _, row in df.iterrows():
-        table_body.append(html.Tr([html.Td(row[c]) for c in df.columns]))
-    table = dbc.Table(table_header + [html.Tbody(table_body)], bordered=True, dark=True, hover=True, responsive=True, striped=True)
+    table = dash_table.DataTable(
+        id='produtos-tabela',
+        columns=[{"name": c, "id": c} for c in df.columns],
+        data=df.to_dict('records'),
+        style_table={'overflowX': 'auto'},
+        style_header={'backgroundColor': '#1a1a1a', 'color': 'white'},
+        style_cell={'backgroundColor': '#333', 'color': 'white', 'textAlign': 'left'},
+        filter_action='native',
+        sort_action='native',
+        page_size=10
+    )
 
-    layout = dbc.Container([
-        dbc.Row(dbc.Col(html.H2("Lista de Produtos", className="gothic-title"), width=12)),
+    return dbc.Container([
+        dbc.Row(dbc.Col(html.H2("Lista de Produtos", className="gothic-title mb-3"), width=12)),
         dbc.Row(dbc.Col(table, width=12)),
-        dbc.Row(dbc.Col(dbc.Button("Voltar", href="/home", color="secondary"), width=12, className="mt-3"))
+        dbc.Row(dbc.Col(dbc.Button("Voltar", href="/home", color="secondary", className="mt-3"), width=12))
     ], fluid=True)
-    return layout

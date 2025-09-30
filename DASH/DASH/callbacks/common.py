@@ -29,23 +29,23 @@ def garantir_data_files():
         df = pd.concat([df, pd.DataFrame([{
             'ID': 'PRD-0001',
             'Nome': 'Fone Noctis',
-           'Categoria': 'Eletrônicos',
+            'Categoria': 'Eletrônicos',
             'Quantidade em estoque': 10,
             'Preço de compra': 50.00,
             'Preço de venda': 89.99,
             'Fornecedor': 'Noctis Supplies'
-    }])], ignore_index=True)
-
+        }])], ignore_index=True)
         df.to_csv(PRODUTOS_CSV, index=False)
+
     # usuarios.csv simples
     if not os.path.exists(USUARIOS_CSV):
         df = pd.DataFrame([{'usuario': 'admin', 'senha': '1234'}])
         df.to_csv(USUARIOS_CSV, index=False)
+
     # cria DB SQLite vazio (caso queira usar mais tarde)
     if not os.path.exists(DB_PATH):
         engine = create_engine(DB_URI)
         with engine.connect() as conn:
-            # cria tabela produtos se não existir (esquemático)
             conn.execute(text(
                 """
                 CREATE TABLE IF NOT EXISTS produtos (
@@ -61,23 +61,17 @@ def garantir_data_files():
             ))
 
 def carregar_produtos():
-    """
-    Retorna um DataFrame com produtos, priorizando CSV.
-    Futuramente você pode trocar para carregar do SQLite facilmente.
-    """
+    """Retorna um DataFrame com produtos, priorizando CSV."""
     if os.path.exists(PRODUTOS_CSV):
         df = pd.read_csv(PRODUTOS_CSV)
-        # conversões de tipo seguras
-        df['Quantidade em estoque'] = df['Quantidade em estoque'].fillna(0).astype(int)
+        if "Quantidade em estoque" in df.columns:
+            df['Quantidade em estoque'] = df['Quantidade em estoque'].fillna(0).astype(int)
         return df
     return pd.DataFrame(columns=PROD_COLUMNS)
 
 def salvar_produtos(df):
-    """
-    Salva DataFrame no CSV. Mantém compatibilidade com SQLite (opcional).
-    """
+    """Salva DataFrame no CSV e sincroniza com SQLite (opcional)."""
     df.to_csv(PRODUTOS_CSV, index=False)
-    # opcional: sincronizar com SQLite (exemplo simples)
     try:
         engine = create_engine(DB_URI)
         df_sql = df.rename(columns={
@@ -87,16 +81,12 @@ def salvar_produtos(df):
         })
         df_sql.to_sql('produtos', con=engine, if_exists='replace', index=False)
     except Exception as e:
-        # falha em sincronizar com DB não deve quebrar app
         print("Aviso: não foi possível sincronizar com SQLite:", e)
 
 def gerar_id_unico(prefix='PRD'):
-    # gera um ID curto e legível
     return f"{prefix}-{str(uuid.uuid4())[:8]}"
 
 def buscar_produto_por_id(prod_id):
     df = carregar_produtos()
     match = df[df['ID'] == prod_id]
-    if match.empty:
-        return None
-    return match.iloc[0].to_dict()
+    return None if match.empty else match.iloc[0].to_dict()

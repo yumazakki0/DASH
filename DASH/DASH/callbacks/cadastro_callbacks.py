@@ -1,11 +1,11 @@
 # callbacks/cadastro_callbacks.py
 # Lida com o cadastro de produtos: gera ID se necessário e salva no CSV.
 from dash import Input, Output, State
+import dash_bootstrap_components as dbc
 from app import app
 import pandas as pd
 from callbacks.common import carregar_produtos, salvar_produtos, gerar_id_unico
 
-# Callback que salva produto (assumindo componentes com ids conforme layout)
 @app.callback(
     Output('cad-feedback', 'children'),
     Input('cad-salvar', 'n_clicks'),
@@ -19,16 +19,16 @@ from callbacks.common import carregar_produtos, salvar_produtos, gerar_id_unico
     prevent_initial_call=True
 )
 def salvar_produto(n_clicks, cad_id, nome, categoria, quantidade, preco_compra, preco_venda, fornecedor):
-    # validação mínima
     if not nome or quantidade is None:
         return dbc.Alert("Nome e quantidade são obrigatórios.", color="danger")
+
     df = carregar_produtos()
-    # se id vazio, gera
     if not cad_id:
         cad_id = gerar_id_unico()
-    # checa duplicata de ID
+
     if not df[df['ID'] == cad_id].empty:
-        return dbc.Alert("ID já existe. Informe outro ID ou deixe em branco para gerar automaticamente.", color="danger")
+        return dbc.Alert("ID já existe. Informe outro ID ou deixe em branco.", color="danger")
+
     novo = {
         'ID': cad_id,
         'Nome': nome,
