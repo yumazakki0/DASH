@@ -19,3 +19,5 @@ Todas as bibliotecas necessárias estão listadas no `requirements.txt`. Para in
 
 ```bash
 pip install -r requirements.txt
+create for: mxdocmorro e yumazakki
+gabriel henrique moreira lima
